@@ -27,15 +27,7 @@ import {
   MoreVert,
   ExitToApp,
 } from "@material-ui/icons";
-import {
-  green,
-  grey,
-  pink,
-  purple,
-  red,
-  teal,
-  yellow,
-} from "@material-ui/core/colors";
+import { green, grey, pink, purple, yellow } from "@material-ui/core/colors";
 import Cookies from "js-cookie";
 const useStyles = makeStyles((theme) => ({
   drawer: {
@@ -162,8 +154,32 @@ const FixedDrawer = ({ open, setopen }) => {
                     />
                   </ListItem>
                 </Tooltip>
-
-                {/* logout item 7 */}
+                {/* item 3 */}
+                <Tooltip title="Users" arrow>
+                  <ListItem
+                    button
+                    className={classes.marginListItems}
+                    component={NavLink}
+                    to="/admin/courses_handle"
+                    exact
+                    activeClassName={classes.activeLink}
+                  >
+                    <ListItemIcon>
+                      <Person
+                        fontSize="small"
+                        style={{ color: yellow[200], fontSize: 15 }}
+                      />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary="Courses"
+                      classes={{
+                        primary: classes.ListItemText,
+                      }}
+                      style={{ color: grey[900] }}
+                    />
+                  </ListItem>
+                </Tooltip>
+                {/* logout item 4 */}
                 <Tooltip title="Logout" arrow>
                   <ListItem
                     button

@@ -7,6 +7,7 @@ import AdminDashboard from "./components/AdminDashboard/AdminDashboard";
 import UserList from "./components/AdminDashboard/UserList";
 import CoursesHandle from "./components/AdminDashboard/CourseHandle";
 import LoginAdmin from "./components/AdminDashboard/LoginAdmin";
+import Paractice from "./components/Paractice";
 const font = "Open Sans";
 const theme = createMuiTheme({
   typography: {
@@ -21,6 +22,10 @@ function App() {
     <div>
       <ThemeProvider theme={theme}>
         <Router>
+          {/* paracitce */}
+          <Route exact path="/">
+            <Paractice />
+          </Route>
           {/* admin login */}
           <Route exact path="/admin">
             <LoginAdmin />

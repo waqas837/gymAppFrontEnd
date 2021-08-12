@@ -35,6 +35,7 @@ const LoginAdmin = () => {
       if (data.message) {
         if (Cookies.get("admin")) {
           history.push("/admin/dashboard");
+          window.location.reload();
         } else {
           toast.error("Invalid Information provided!");
         }

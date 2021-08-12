@@ -22,6 +22,11 @@ import {
   DialogActions,
   DialogTitle,
   OutlinedInput,
+  Radio,
+  FormControl,
+  FormLabel,
+  RadioGroup,
+  FormControlLabel,
 } from "@material-ui/core";
 import {
   Add,
@@ -47,7 +52,18 @@ const UserList = () => {
   const [userid, setuserid] = React.useState("");
   const [fetchedUsersApi, setfetchedUsersApi] = React.useState([]);
   const [user, setuser] = React.useState("NoSelection");
-  // add user
+  const [value, setvalue] = React.useState("Trainer");
+  const [state3, setstate3] = React.useState([]);
+  // so first we make its value to learner
+  useEffect(() => {
+    setstate3({ role: "Trainer" });
+  }, []);
+  // handle radio
+  const handleRadio = (e) => {
+    setvalue(e.target.value);
+    setstate3({ role: e.target.value });
+  };
+  // add user by the admin it is not admin signup self
   const addUpUser = async () => {
     if (state2.username === undefined) {
       toast.error(`Username is required`);
@@ -58,7 +74,12 @@ const UserList = () => {
     }
     try {
       setloading(true);
-      const { data } = await axios.post(`${userApi}/signupAdmin`, state2);
+      const { data } = await axios.post(`${userApi}/signupAdmin`, {
+        username: state2.username,
+        email: state2.email,
+        password: state2.password,
+        role: state3.role,
+      });
       if (data.userExists) {
         toast.error(`${data.userExists}`);
       }
@@ -148,6 +169,7 @@ const UserList = () => {
       if (data.success) {
         setopentwo(true);
         setpageRefresh(!pageRefresh);
+        window.location.reload();
       }
     } catch (error) {
       setloading(false);
@@ -206,7 +228,12 @@ const UserList = () => {
                         >
                           Password
                         </TableCell>
-
+                        <TableCell
+                          align="center"
+                          style={{ color: MainSecondary, fontWeight: "bold" }}
+                        >
+                          Role
+                        </TableCell>
                         <TableCell
                           align="center"
                           style={{ color: MainSecondary, fontWeight: "bold" }}
@@ -249,7 +276,12 @@ const UserList = () => {
                               {val.password}
                             </Typography>
                           </TableCell>
-
+                          {/* role */}
+                          <TableCell align="center">
+                            <Typography variant="subtitle2">
+                              {val.role}
+                            </Typography>
+                          </TableCell>
                           <TableCell align="center">
                             {val.status ? (
                               <Button className={classes.buttonStyle}>
@@ -418,10 +450,10 @@ const UserList = () => {
                     />
                   </Container>
                 </Box>
-
-                <Box my={1}>
+                <Box>
                   <Container>
                     <OutlinedInput
+                      type="password"
                       onChange={(e) =>
                         setstate2({ ...state2, password: e.target.value })
                       }
@@ -431,6 +463,25 @@ const UserList = () => {
                     />
                   </Container>
                 </Box>
+                <Container>
+                  <Box my={1}>
+                    <FormControl>
+                      <FormLabel>Select Role</FormLabel>
+                      <RadioGroup row value={value} onChange={handleRadio}>
+                        <FormControlLabel
+                          label={<span style={{ fontSize: 14 }}>Trainer</span>}
+                          value="Trainer"
+                          control={<Radio size="small" />}
+                        />
+                        <FormControlLabel
+                          label={<span style={{ fontSize: 14 }}>Learner</span>}
+                          value="Learner"
+                          control={<Radio size="small" />}
+                        />
+                      </RadioGroup>
+                    </FormControl>
+                  </Box>
+                </Container>
               </div>
             ) : user === "EditUser" ? (
               <div>

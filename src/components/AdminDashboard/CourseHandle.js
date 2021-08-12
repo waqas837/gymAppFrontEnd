@@ -31,10 +31,8 @@ import {
   Add,
   AddCircleOutline,
   CheckCircleOutline,
-  Close,
+  CloseOutlined,
   ErrorOutline,
-  GTranslate,
-  SignalCellularAlt,
 } from "@material-ui/icons";
 import { MainSecondary, useStyles } from "./Main.Styles";
 import Navbar from "./Navbar";
@@ -60,7 +58,20 @@ const CoursesHandle = () => {
   const [state, setstate] = useState();
   const [state2, setstate2] = useState();
   const [img, setimg] = useState("");
+  const [instruct, setinstruct] = useState([]);
   const [customizeValue, setcustomizeValue] = useState("No selection");
+  const [edited, setedited] = useState("");
+  console.log(CourseData);
+  // 0.get instructor
+  const getInstructorForUpdate = async () => {
+    try {
+      const { data } = await axios.get(`${coursesApi}/getInstructors`);
+      // console.log(data.findData);
+      setinstruct(data.findData);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   // uplaod Profile
   const uplaodProfile = async (e, id) => {
     if (!img) {
@@ -81,7 +92,13 @@ const CoursesHandle = () => {
       console.log(error);
     }
   };
-
+  //find first edited data and we match it
+  const editUser = (id) => {
+    const findedData = showCourses.find((val) => val._id === id);
+    setedited(findedData);
+    setopenCustomize(true);
+    getInstructorForUpdate();
+  };
   // add finally lang course
   const addFinallyLanguageToCourse = async () => {
     try {
@@ -133,11 +150,17 @@ const CoursesHandle = () => {
     }
   };
   // add a custom language field
-  const addLanguageField = async () => {
-    try {
-      const { data } = await axios.post(
-        `${coursesApi}/addLanguageField/${window.Lid}`,
-        state2
+  const updateCourse = async () => {
+     try {
+      const { data } = await axios.put(
+        `${coursesApi}/updatCourse/${edited._id}`,
+        {
+          instructorname: window.instructorname,
+          link: state2.link,
+          coursedesc: state2.coursedesc,
+          instructordesc: state2.instructordesc,
+          coursename: state2.coursename,
+        }
       );
       // setopenCustomize(true);
       setcustomizeValue("languageCustomize");
@@ -151,35 +174,7 @@ const CoursesHandle = () => {
       console.log(error);
     }
   };
-  //Fetch fetchCourseDB
-  const fetchCourseLevels = async (id) => {
-    try {
-      const { data } = await axios.get(`${coursesApi}/getCategoryLevels/${id}`);
-      console.log(data.data);
-      // show values in dialog
-      setdifficultyDialog(true);
-      setshowlevels(data.data.courselevel);
-      window.id = data.data._id;
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  //Fetch languages
-  const getLanguages = async (id) => {
-    try {
-      const { data } = await axios.get(`${coursesApi}/getLanguages/${id}`);
-      console.log(data.data);
-      // dialog to select a language
-      window.Lid = data.data._id;
-      if (data.success) {
-        setopenLanguage(true);
-        setshowLanguages(data.data.language);
-        setpageRefresh(!pageRefresh);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+
   //get all the courses data
   const getAllCourses = async () => {
     try {
@@ -200,36 +195,27 @@ const CoursesHandle = () => {
   }, [pageRefresh]);
   // create new course
   const createNewCourse = async () => {
-    if (
-      CourseData.coursename === undefined ||
-      CourseData.coursecategoryname === undefined ||
-      CourseData.instructorname === undefined
-    ) {
-      toast.error("Please fill the fields");
-    } else if (
-      CourseData.coursename !== undefined ||
-      CourseData.coursecategoryname !== undefined ||
-      CourseData.instructorname !== undefined
-    ) {
-      try {
-        const { data } = await axios.post(
-          `${coursesApi}/addNewCourse`,
-          CourseData
-        );
-        if (data.success) {
-          setpageRefresh(!pageRefresh);
-          setopen(false);
-        }
-        console.log(data);
-      } catch (error) {
-        console.log(error);
+    try {
+      const { data } = await axios.post(`${coursesApi}/addNewCourse`, {
+        coursename: CourseData.coursename,
+        link: CourseData.link,
+        coursedesc: CourseData.coursedesc,
+        instructordesc: CourseData.instructordesc,
+        instructorname: window.instructorname,
+      });
+      if (data.success) {
+        setpageRefresh(!pageRefresh);
+        setopen(false);
       }
+      console.log(data);
+    } catch (error) {
+      console.log(error);
     }
   };
   const handleChange = (event, child) => {
     setAge(event.target.value);
-    // console.log(child.props.children);
-    window.levelVal = child.props.children;
+    console.log(child.props.children);
+    window.instructorname = child.props.children;
   };
 
   //course customization
@@ -244,9 +230,16 @@ const CoursesHandle = () => {
   };
 
   // 1.Add a course
-  const addUser = () => {
+  const addUser = async () => {
     setopen(true);
     setuser("AddCourse");
+    try {
+      const { data } = await axios.get(`${coursesApi}/getInstructors`);
+      console.log(data.findData);
+      setinstruct(data.findData);
+    } catch (error) {
+      console.log(error);
+    }
   };
   //   close both dialogs
   const closeBothDialogs = () => {
@@ -287,12 +280,12 @@ const CoursesHandle = () => {
             </Grid>
             <Grid item xs={6} sm={6} md={6} lg={6} xl={6}>
               <Box textAlign="right">
-              {/* Level icon */}
-              {/* <IconButton>
+                {/* Level icon */}
+                {/* <IconButton>
                   <SignalCellularAlt fontSize="small" style={{ color: MainSecondary }} />
                 </IconButton> */}
-              {/* Language icon */}
-              {/* <IconButton onClick={addUser}>
+                {/* Language icon */}
+                {/* <IconButton onClick={addUser}>
                   <GTranslate fontSize="small" style={{ color: MainSecondary }} />
                 </IconButton> */}
                 {/* add icon */}
@@ -324,7 +317,7 @@ const CoursesHandle = () => {
                           align="center"
                           style={{ color: MainSecondary, fontWeight: "bold" }}
                         >
-                          Instructor Name
+                          Course Link
                         </TableCell>
                         <TableCell
                           align="left"
@@ -336,20 +329,20 @@ const CoursesHandle = () => {
                           align="center"
                           style={{ color: MainSecondary, fontWeight: "bold" }}
                         >
-                          Course Category
+                          Course Description
                         </TableCell>
                         <TableCell
                           align="center"
                           style={{ color: MainSecondary, fontWeight: "bold" }}
                         >
-                          Level
+                          Instructor Name
                         </TableCell>
 
                         <TableCell
                           align="center"
                           style={{ color: MainSecondary, fontWeight: "bold" }}
                         >
-                          Langauge
+                          Instructor Description
                         </TableCell>
                         <TableCell
                           align="center"
@@ -372,7 +365,7 @@ const CoursesHandle = () => {
                           </TableCell>
                           <TableCell align="center">
                             <Typography variant="subtitle2">
-                              {val.instructorname}
+                              {val.link}
                             </Typography>
                           </TableCell>
                           {/* instructor profile */}
@@ -403,58 +396,22 @@ const CoursesHandle = () => {
                             )}
                           </TableCell>
                           <TableCell align="center">
-                            <Typography
-                              variant="subtitle2"
-                              // style={{
-                              //   whiteSpace: "nowrap",
-                              //   textOverflow: "ellipsis",
-                              //   width: "100px",
-                              //   display: "inline-block",
-                              //   overflow: "hidden",
-                              // }}
-                              // align="right"
-                            >
-                              {val.coursecategoryname}
+                            <Typography variant="subtitle2">
+                              {val.coursedesc}
                             </Typography>
                           </TableCell>
                           {/* select a level for category */}
-                          <TableCell>
-                            {val.level ? (
-                              val.level
-                            ) : (
-                              <Button
-                                color="secondary"
-                                variant="contained"
-                                style={{ fontSize: "10px", borderRadius: 0 }}
-                                size="small"
-                                onClick={() => fetchCourseLevels(val._id)}
-                              >
-                                Select Course Level
-                              </Button>
-                            )}
-                          </TableCell>
+                          <TableCell>{val.instructorname}</TableCell>
                           {/* select a language */}
                           <TableCell align="center">
-                            {val.lang ? (
-                              val.lang
-                            ) : (
-                              <Button
-                                color="secondary"
-                                variant="contained"
-                                style={{ fontSize: "10px", borderRadius: 0 }}
-                                size="small"
-                                onClick={() => getLanguages(val._id)}
-                              >
-                                Select Language
-                              </Button>
-                            )}
+                            {val.instructordesc}
                           </TableCell>
                           <TableCell align="right">
                             <ButtonGroup orientation="horizontal">
                               <Button
                                 size="small"
                                 className={classes.buttonStyle}
-                                // onClick={() => editUser(val._id)}
+                                onClick={() => editUser(val._id)}
                               >
                                 Edit
                               </Button>
@@ -561,12 +518,20 @@ const CoursesHandle = () => {
       {/* Add course dialog */}
       <Dialog open={open} onClose={() => setopen(false)}>
         <DialogTitle>
-          <Typography
-            style={{ fontWeight: "bold", textAlign: "center" }}
-            variant="h6"
-          >
-            Add Course
-          </Typography>
+          <Box display="flex" justifyContent="space-around">
+            <Typography
+              style={{ fontWeight: "bold", textAlign: "center" }}
+              variant="h6"
+            >
+              Add Course
+            </Typography>
+            <IconButton
+              onClick={() => setopen(false)}
+              style={{ marginTop: -5, marginLeft: "auto" }}
+            >
+              <CloseOutlined fontSize="small" color="secondary" />
+            </IconButton>
+          </Box>
         </DialogTitle>
         <DialogContent>
           <Box my={1}>
@@ -584,22 +549,6 @@ const CoursesHandle = () => {
               />
             </Container>
           </Box>
-          {/* courseCategories */}
-          <Box my={1}>
-            <Container>
-              <OutlinedInput
-                onChange={(e) =>
-                  setCourseData({
-                    ...CourseData,
-                    coursecategoryname: e.target.value,
-                  })
-                }
-                placeholder="Course Category Name"
-                fullWidth
-                className={classes.input}
-              />
-            </Container>
-          </Box>
 
           <Box my={1}>
             <Container>
@@ -607,12 +556,64 @@ const CoursesHandle = () => {
                 onChange={(e) =>
                   setCourseData({
                     ...CourseData,
-                    instructorname: e.target.value,
+                    link: e.target.value,
                   })
                 }
-                placeholder="Instructor Name"
+                placeholder="Insert Course Video Link"
                 fullWidth
                 className={classes.input}
+              />
+            </Container>
+          </Box>
+          {/* course description */}
+          <Box my={1}>
+            <Container>
+              <OutlinedInput
+                multiline
+                rows={4}
+                onChange={(e) =>
+                  setCourseData({
+                    ...CourseData,
+                    coursedesc: e.target.value,
+                  })
+                }
+                placeholder="Course Description"
+                fullWidth
+              />
+            </Container>
+          </Box>
+          {/* select an instructor,bring these values from backend */}
+          <Box my={2} textAlign="center">
+            <FormControl className={classes.formControl2}>
+              <InputLabel style={{ marginTop: "4px" }}>
+                Select Instructor
+              </InputLabel>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={age}
+                onChange={handleChange}
+              >
+                {instruct.map((val, index) => (
+                  <MenuItem value={index}>{val.username}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+          {/* instructor description */}
+          <Box my={1}>
+            <Container>
+              <OutlinedInput
+                multiline
+                rows={4}
+                onChange={(e) =>
+                  setCourseData({
+                    ...CourseData,
+                    instructordesc: e.target.value,
+                  })
+                }
+                placeholder="Instructor Description"
+                fullWidth
               />
             </Container>
           </Box>
@@ -731,65 +732,85 @@ const CoursesHandle = () => {
         <Dialog open={openCustomize} onClose={() => setopenCustomize(false)}>
           <DialogTitle>
             <Box mb={3} display="flex" justifyContent="space-around">
-              <Typography variant="h6">Add Custom Field</Typography>
+              <Typography variant="h6">Edit Course</Typography>
               <IconButton
                 onClick={() => setopenCustomize(false)}
                 style={{ marginTop: -5 }}
               >
-                <Close fontSize="small" color="secondary" />
+                <CloseOutlined fontSize="small" color="secondary" />
               </IconButton>
             </Box>
 
-            {/* iife for courses */}
-            {(() => {
-              if (customizeValue === "courseCustomize") {
-                return (
-                  <React.Fragment>
-                    <OutlinedInput
-                      placeholder="Write a Correct Field"
-                      style={{ height: "30px", borderRadius: 0 }}
-                      onChange={(e) => setstate(e.target.value)}
-                    />
-                    <DialogActions>
-                      <Button
-                        size="small"
-                        variant="contained"
-                        color="secondary"
-                        style={{ borderRaduis: 0 }}
-                        onClick={addCourseField}
-                      >
-                        Add Level
-                      </Button>
-                    </DialogActions>
-                  </React.Fragment>
-                );
-              }
-            })()}
-            {/* iife for languages */}
-            {(() => {
-              if (customizeValue === "languageCustomize") {
-                return (
-                  <React.Fragment>
-                    <OutlinedInput
-                      placeholder="Write a Correct Field"
-                      style={{ height: "30px", borderRadius: 0 }}
-                      onChange={(e) => setstate2(e.target.value)}
-                    />
-                    <DialogActions>
-                      <Button
-                        size="small"
-                        variant="contained"
-                        color="secondary"
-                        style={{ borderRaduis: 0 }}
-                        onClick={addLanguageField}
-                      >
-                        Add Language
-                      </Button>
-                    </DialogActions>
-                  </React.Fragment>
-                );
-              }
-            })()}
+            <React.Fragment>
+              <Box my={1}>
+                <OutlinedInput
+                  defaultValue={edited.coursename}
+                  placeholder="Course name"
+                  style={{ height: "30px", borderRadius: 0 }}
+                  onChange={(e) => setstate2({...state2,coursename:e.target.value})}
+                />
+              </Box>
+
+              <Box my={1}>
+                <OutlinedInput
+                  defaultValue={edited.link}
+                  placeholder="Course Link"
+                  style={{ height: "30px", borderRadius: 0 }}
+                  onChange={(e) => setstate2({...state2,link:e.target.value})}
+                />
+              </Box>
+
+              {/* select an instructor,bring these values from backend */}
+              <Box my={2} textAlign="center">
+                <FormControl className={classes.formControl2}>
+                  <InputLabel style={{ marginTop: "4px" }}>
+                    Select Instructor
+                  </InputLabel>
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={age}
+                    onChange={handleChange}
+                  >
+                    {instruct.map((val, index) => (
+                      <MenuItem value={index}>{val.username}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Box>
+
+              <Box my={1}>
+                <OutlinedInput
+                  multiline
+                  rows={4}
+                  defaultValue={edited.coursedesc}
+                  placeholder="Couse Description"
+                  onChange={(e) => setstate2({...state2,coursedesc:e.target.value})}
+                />
+              </Box>
+
+              <Box my={1}>
+                <OutlinedInput
+                  multiline
+                  rows={4}
+                  defaultValue={edited.instructordesc}
+                  placeholder="Instructor Description"
+                  onChange={(e) => setstate2({...state2,instructordesc:e.target.value})}
+                />
+              </Box>
+
+              <DialogActions>
+                <Button
+                  size="small"
+                  variant="contained"
+                  color="secondary"
+                  style={{ borderRaduis: 0 }}
+                  onClick={updateCourse}
+                >
+                  Update Course
+                </Button>
+              </DialogActions>
+            </React.Fragment>
           </DialogTitle>
         </Dialog>
       </div>
