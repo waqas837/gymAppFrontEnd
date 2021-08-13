@@ -61,7 +61,33 @@ const CoursesHandle = () => {
   const [instruct, setinstruct] = useState([]);
   const [customizeValue, setcustomizeValue] = useState("No selection");
   const [edited, setedited] = useState("");
-  console.log(CourseData);
+  const [file, setfile] = useState("");
+  const [openInsProf, setopenInsProf] = useState(false);
+  // update profile image of instructor
+  const setimage = (e) => {
+    setfile(e.target.files[0]);
+  };
+  // update Image
+  const updateImage = async (e) => {
+    e.preventDefault();
+    const fdata = new FormData();
+    fdata.append("image", file);
+
+    try {
+      const { data } = await axios.patch(
+        `${coursesApi}/updateInstructorProfile/${edited._id}`,
+        fdata
+      );
+      if (data.success) {
+        toast.success("Image update succeed!");
+        setopenInsProf(false);
+        setpageRefresh(!pageRefresh);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("No Image was selected !");
+    }
+  };
   // 0.get instructor
   const getInstructorForUpdate = async () => {
     try {
@@ -131,43 +157,23 @@ const CoursesHandle = () => {
       console.log(error);
     }
   };
-  // add a custome course field level
-  const addCourseField = async () => {
-    try {
-      const { data } = await axios.post(
-        `${coursesApi}/addCourseField/${window.id}`,
-        state
-      );
-      if (data) {
-        setpageRefresh(!pageRefresh);
-        setopenCustomize(false);
-        setdifficultyDialog(false);
-        toast.success("Level was Added Go And Select Again");
-      }
-      console.log(data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+
   // add a custom language field
   const updateCourse = async () => {
-     try {
-      const { data } = await axios.put(
+    try {
+      const { data } = await axios.patch(
         `${coursesApi}/updatCourse/${edited._id}`,
-        {
-          instructorname: window.instructorname,
-          link: state2.link,
-          coursedesc: state2.coursedesc,
-          instructordesc: state2.instructordesc,
-          coursename: state2.coursename,
-        }
+        state2
       );
       // setopenCustomize(true);
-      setcustomizeValue("languageCustomize");
-      setpageRefresh(!pageRefresh);
-      setopenLanguage(false);
-      setopenCustomize(false);
-      toast.success("Language was Added Go And Select Again");
+      if (data.success) {
+        setcustomizeValue("languageCustomize");
+        setpageRefresh(!pageRefresh);
+        setopenLanguage(false);
+        setopenCustomize(false);
+        toast.success("Operation succeed!");
+        setopenInsProf(true);
+      }
 
       console.log(data);
     } catch (error) {
@@ -214,8 +220,8 @@ const CoursesHandle = () => {
   };
   const handleChange = (event, child) => {
     setAge(event.target.value);
-    console.log(child.props.children);
-    window.instructorname = child.props.children;
+    // console.log(child.props.children);
+    setstate2({ ...state2, instructorname: child.props.children });
   };
 
   //course customization
@@ -727,7 +733,7 @@ const CoursesHandle = () => {
           </Button>
         </DialogActions>
       </Dialog>
-      {/* dialog for customize for courses and languages */}
+      {/* dialog for update course */}
       <div>
         <Dialog open={openCustomize} onClose={() => setopenCustomize(false)}>
           <DialogTitle>
@@ -747,7 +753,9 @@ const CoursesHandle = () => {
                   defaultValue={edited.coursename}
                   placeholder="Course name"
                   style={{ height: "30px", borderRadius: 0 }}
-                  onChange={(e) => setstate2({...state2,coursename:e.target.value})}
+                  onChange={(e) =>
+                    setstate2({ ...state2, coursename: e.target.value })
+                  }
                 />
               </Box>
 
@@ -756,7 +764,9 @@ const CoursesHandle = () => {
                   defaultValue={edited.link}
                   placeholder="Course Link"
                   style={{ height: "30px", borderRadius: 0 }}
-                  onChange={(e) => setstate2({...state2,link:e.target.value})}
+                  onChange={(e) =>
+                    setstate2({ ...state2, link: e.target.value })
+                  }
                 />
               </Box>
 
@@ -785,7 +795,9 @@ const CoursesHandle = () => {
                   rows={4}
                   defaultValue={edited.coursedesc}
                   placeholder="Couse Description"
-                  onChange={(e) => setstate2({...state2,coursedesc:e.target.value})}
+                  onChange={(e) =>
+                    setstate2({ ...state2, coursedesc: e.target.value })
+                  }
                 />
               </Box>
 
@@ -795,7 +807,9 @@ const CoursesHandle = () => {
                   rows={4}
                   defaultValue={edited.instructordesc}
                   placeholder="Instructor Description"
-                  onChange={(e) => setstate2({...state2,instructordesc:e.target.value})}
+                  onChange={(e) =>
+                    setstate2({ ...state2, instructordesc: e.target.value })
+                  }
                 />
               </Box>
 
@@ -814,6 +828,31 @@ const CoursesHandle = () => {
           </DialogTitle>
         </Dialog>
       </div>
+      {/* image updata mini-dialog */}
+      <Dialog open={openInsProf} onClose={() => setopenInsProf(false)}>
+        <DialogTitle>
+          <Box display="flex" justifyContent="space-evenly">
+            <Typography variant="h6">Update Instructor Profile</Typography>
+            <IconButton
+              style={{ marginTop: -8 }}
+              onClick={() => setopenInsProf(false)}
+            >
+              <CloseOutlined fontSize="small" color="secondary" />
+            </IconButton>
+          </Box>
+          <form onSubmit={updateImage}>
+            <input type="file" name="image" onChange={setimage} />
+            <Button
+              onClick={updateImage}
+              variant="contained"
+              size="small"
+              color="primary"
+            >
+              Upload
+            </Button>
+          </form>
+        </DialogTitle>
+      </Dialog>
     </div>
   );
 };
