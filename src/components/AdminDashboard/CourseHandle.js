@@ -36,9 +36,14 @@ import {
 } from "@material-ui/icons";
 import { MainSecondary, useStyles } from "./Main.Styles";
 import Navbar from "./Navbar";
+import Cookies from "js-cookie";
 
 const CoursesHandle = () => {
-  axios.defaults.withCredentials = true;
+  // let send data by the header but first get them from the cookies
+  const admin = Cookies.get("admin");
+  const headers = {
+    authorization: `Bearer ${admin}`,
+  };
   const classes = useStyles();
   const [open, setopen] = React.useState(false);
   const [delet, setdelet] = React.useState(false);
@@ -76,7 +81,7 @@ const CoursesHandle = () => {
     try {
       const { data } = await axios.patch(
         `${coursesApi}/updateInstructorProfile/${edited._id}`,
-        fdata
+        fdata,{headers}
       );
       if (data.success) {
         toast.success("Image update succeed!");
@@ -91,7 +96,7 @@ const CoursesHandle = () => {
   // 0.get instructor
   const getInstructorForUpdate = async () => {
     try {
-      const { data } = await axios.get(`${coursesApi}/getInstructors`);
+      const { data } = await axios.get(`${coursesApi}/getInstructors`,{headers});
       // console.log(data.findData);
       setinstruct(data.findData);
     } catch (error) {
@@ -109,7 +114,7 @@ const CoursesHandle = () => {
     try {
       const { data } = await axios.post(
         `${coursesApi}/addInstructorProfile/${id}`,
-        fData
+        fData,{headers}
       );
       if (data.success) {
         setpageRefresh(!pageRefresh);
@@ -129,7 +134,7 @@ const CoursesHandle = () => {
   const addFinallyLanguageToCourse = async () => {
     try {
       const { data } = await axios.post(
-        `${coursesApi}/addFinallyLanguageToCourse/${window.Lid}/${window.lang}`
+        `${coursesApi}/addFinallyLanguageToCourse/${window.Lid}/${window.lang}`,{headers}
       );
       if (DataTransferItemList) {
         setpageRefresh(!pageRefresh);
@@ -146,7 +151,7 @@ const CoursesHandle = () => {
   const addFinallyLevelToCourse = async () => {
     try {
       const { data } = await axios.post(
-        `${coursesApi}/addFinallyLevelToCourse/${window.id}/${window.levelVal}`
+        `${coursesApi}/addFinallyLevelToCourse/${window.id}/${window.levelVal}`,{headers}
       );
       if (data) {
         setpageRefresh(!pageRefresh);
@@ -163,7 +168,7 @@ const CoursesHandle = () => {
     try {
       const { data } = await axios.patch(
         `${coursesApi}/updatCourse/${edited._id}`,
-        state2
+        state2,{headers}
       );
       // setopenCustomize(true);
       if (data.success) {
@@ -183,8 +188,9 @@ const CoursesHandle = () => {
 
   //get all the courses data
   const getAllCourses = async () => {
+    
     try {
-      const { data } = await axios.get(`${coursesApi}/getAllCourseData`);
+      const { data } = await axios.get(`${coursesApi}/getAllCourseData`,{headers});
       console.log(data.newData);
       setshowCourses(data.newData);
     } catch (error) {
@@ -208,7 +214,7 @@ const CoursesHandle = () => {
         coursedesc: CourseData.coursedesc,
         instructordesc: CourseData.instructordesc,
         instructorname: window.instructorname,
-      });
+      },{headers});
       if (data.success) {
         setpageRefresh(!pageRefresh);
         setopen(false);
@@ -240,7 +246,7 @@ const CoursesHandle = () => {
     setopen(true);
     setuser("AddCourse");
     try {
-      const { data } = await axios.get(`${coursesApi}/getInstructors`);
+      const { data } = await axios.get(`${coursesApi}/getInstructors`,{headers});
       console.log(data.findData);
       setinstruct(data.findData);
     } catch (error) {
@@ -256,7 +262,7 @@ const CoursesHandle = () => {
   const delelteCourse = async (id) => {
     setloading(true);
     try {
-      const { data } = await axios.delete(`${coursesApi}/deleteACourse/${id}`);
+      const { data } = await axios.delete(`${coursesApi}/deleteACourse/${id}`,{headers});
       console.log(data);
       // open record deleted dialog that data was deleted
       if (data.success) {

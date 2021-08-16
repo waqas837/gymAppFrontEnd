@@ -37,9 +37,14 @@ import {
 } from "@material-ui/icons";
 import { MainSecondary, useStyles } from "./Main.Styles";
 import Navbar from "./Navbar";
+import Cookies from "js-cookie";
 
 const UserList = () => {
-  axios.defaults.withCredentials = true; //this sigle line will attach cookies with every axios request
+  // let send data by the header but first get them from the cookies
+  const admin = Cookies.get("admin");
+  const headers = {
+    authorization: `Bearer ${admin}`,
+  };
   const classes = useStyles();
   const [age, setAge] = React.useState("");
   const [open, setopen] = React.useState(false);
@@ -79,7 +84,7 @@ const UserList = () => {
         email: state2.email,
         password: state2.password,
         role: state3.role,
-      });
+      },{headers});
       if (data.userExists) {
         toast.error(`${data.userExists}`);
       }
@@ -100,7 +105,7 @@ const UserList = () => {
     try {
       const { data } = await axios.patch(
         `${userApi}/updateUser/${userid}`,
-        state
+        state,{headers}
       );
       if (data) {
         setopen(false);
@@ -113,7 +118,7 @@ const UserList = () => {
   // fetch user api for admin
   const fetchUsers = async () => {
     try {
-      const { data } = await axios.get(`${userApi}/findAllUsers`);
+      const { data } = await axios.get(`${userApi}/findAllUsers`, { headers });
       console.log(data);
       setfetchedUsersApi(data.users);
     } catch (error) {
@@ -162,7 +167,7 @@ const UserList = () => {
     // call here api and just delete the data
     try {
       const { data } = await axios.delete(
-        `${userApi}/deleteSingleUser/${userid}`
+        `${userApi}/deleteSingleUser/${userid}`,{headers}
       );
       console.log(data);
       // open record deleted dialog that data was deleted
