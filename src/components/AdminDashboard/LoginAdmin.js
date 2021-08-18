@@ -23,7 +23,7 @@ const LoginAdmin = () => {
   const history = useHistory();
   useEffect(() => {
     if (Cookies.get("admin")) {
-      history.push("/admin/dashboard");
+      history.push("/admin/users");
     }
   }, []);
   //admin login
@@ -32,13 +32,9 @@ const LoginAdmin = () => {
       setloading(true);
       const { data } = await axios.post(`${userApi}/adminLogin`, state);
       setloading(false);
-      if (data.message) {
-        if (Cookies.get("admin")) {
-          history.push("/admin/dashboard");
-          window.location.reload();
-        } else {
-          toast.error("Invalid Information provided!");
-        }
+      if (data.success) {
+        history.push(`admin/users`);
+        window.location.reload();
       } else if (data.invalidUser) {
         toast.error("Invalid Information provided!");
       }

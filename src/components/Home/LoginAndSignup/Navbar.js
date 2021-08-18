@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import Cookies from "js-cookie";
 import {
   Typography,
   AppBar,
@@ -25,6 +26,24 @@ const useStyles = makeStyles((theme) => ({
 const Navbar = () => {
   const classes = useStyles();
   const [open, setopen] = useState(null);
+  const [refresh, setrefresh] = useState(false);
+  const [openas, setopenas] = useState("NoSelection");
+  useEffect(() => {}, [refresh]);
+  //logout
+  const logout = () => {
+    Cookies.remove("user");
+    setrefresh(!refresh);
+  };
+  // login
+  const login=()=>{
+    setopen(true);
+    setopenas("login")
+  }
+  // signup
+  const signup=()=>{
+    setopen(true);
+    setopenas("signup")
+  }
   return (
     <div>
       <Toaster />
@@ -42,16 +61,32 @@ const Navbar = () => {
           <Typography variant="h6" className={classes.title}>
             GYMapp
           </Typography>
-          <Button
-            color="inherit"
-            variant="outlined"
-            onClick={() => setopen(true)}
-          >
-            Signup
-          </Button>
+          {Cookies.get("user") ? (
+            <Button variant="outlined" color="inherit" onClick={logout}>
+              Logout
+            </Button>
+          ) : (
+            <React.Fragment>
+              <Button
+                color="inherit"
+                variant="outlined"
+                onClick={signup}
+              >
+                Signup
+              </Button>
+              &nbsp;
+              <Button
+                color="inherit"
+                variant="outlined"
+                onClick={login}
+              >
+                Login
+              </Button>
+            </React.Fragment>
+          )}
         </Toolbar>
       </AppBar>
-      <DialogForLoginAndSignup open={open} setopen={setopen} />
+      <DialogForLoginAndSignup open={open} setopen={setopen} openas={openas}/>
     </div>
   );
 };

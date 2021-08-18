@@ -26,6 +26,7 @@ import {
   FindInPage,
   MoreVert,
   ExitToApp,
+  PlaylistPlay,
 } from "@material-ui/icons";
 import { green, grey, pink, purple, yellow } from "@material-ui/core/colors";
 import Cookies from "js-cookie";
@@ -155,7 +156,7 @@ const FixedDrawer = ({ open, setopen }) => {
                   </ListItem>
                 </Tooltip>
                 {/* item 3 */}
-                <Tooltip title="Users" arrow>
+                <Tooltip title="Courses" arrow>
                   <ListItem
                     button
                     className={classes.marginListItems}
@@ -165,9 +166,9 @@ const FixedDrawer = ({ open, setopen }) => {
                     activeClassName={classes.activeLink}
                   >
                     <ListItemIcon>
-                      <Person
+                      <PlaylistPlay
                         fontSize="small"
-                        style={{ color: yellow[200], fontSize: 15 }}
+                        style={{ color: green[800], fontSize: 15 }}
                       />
                     </ListItemIcon>
                     <ListItemText
@@ -263,7 +264,7 @@ const FixedDrawer = ({ open, setopen }) => {
                         primary: classes.ListItemText,
                       }}
                       primary="Dashboard"
-                      style={{ color: grey[400] }}
+                      style={{ color: grey[900] }}
                     />
                   </ListItem>
                 </Tooltip>
@@ -289,14 +290,42 @@ const FixedDrawer = ({ open, setopen }) => {
                       classes={{
                         primary: classes.ListItemText,
                       }}
-                      style={{ color: grey[400] }}
+                      style={{ color: grey[900] }}
                     />
                   </ListItem>
                 </Tooltip>
-
-                {/*  */}
+                {/* courses */}
+                <Tooltip title="Courses" arrow>
+                  <ListItem
+                    button
+                    className={classes.marginListItems}
+                    component={NavLink}
+                    to="/admin/courses_handle"
+                    exact
+                    activeClassName={classes.activeLink}
+                  >
+                    <ListItemIcon>
+                      <PlaylistPlay
+                        fontSize="small"
+                        style={{ color: green[800], fontSize: 15 }}
+                      />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary="Courses"
+                      classes={{
+                        primary: classes.ListItemText,
+                      }}
+                      style={{ color: grey[900] }}
+                    />
+                  </ListItem>
+                </Tooltip>
+                {/* logout */}
                 <Tooltip title="Logout" arrow>
-                  <ListItem button className={classes.marginListItems}>
+                  <ListItem
+                    button
+                    className={classes.marginListItems}
+                    onClick={logout}
+                  >
                     <ListItemIcon>
                       <ExitToApp
                         fontSize="small"
@@ -308,7 +337,7 @@ const FixedDrawer = ({ open, setopen }) => {
                         primary: classes.ListItemText,
                       }}
                       primary="Logout"
-                      style={{ color: grey[400] }}
+                      style={{ color: grey[900] }}
                     />
                   </ListItem>
                 </Tooltip>
