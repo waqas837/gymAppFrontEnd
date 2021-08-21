@@ -11,22 +11,59 @@ import {
   DialogContent,
   DialogTitle,
   OutlinedInput,
+  Radio,
+  FormControl,
+  FormLabel,
+  RadioGroup,
+  FormControlLabel,
 } from "@material-ui/core";
+import Cookies from "js-cookie";
 const DialogForLoginAndSignup = ({ open, setopen, openas }) => {
   axios.defaults.withCredentials = true;
-  const [state2, setstate2] = useState([]);
-  const [pageRefresh, setpageRefresh] = useState(false);
+  const [state3, setstate3] = useState("Trainer");
+  const [value, setvalue] = React.useState("Trainer"); 
+  // so first we make its value to learner
   useEffect(() => {
-    setstate2("");
-  }, [pageRefresh]);
+    setstate3({ role: "Trainer" });
+  }, []);
+  // handle radio
+  const handleRadio = (e) => {
+    setvalue(e.target.value);
+    setstate3({ ...state3, role: e.target.value });
+  };
+  // console.log(state3);
+  // Signup maybe a learner/trainer
+  const SignupLearnerOrTrainer = async () => {
+    try {
+      const { data } = await axios.post(`${userApi}/signupUser`, {
+        username: state3.username,
+        email: state3.email,
+        password: state3.password,
+        role: state3.role,
+      });
+      // console.log(data)
+      if (data.userExists) {
+        toast.error(`${data.userExists}`);
+      }
+
+      if (data.success) {
+        setopen(false);
+        window.location.reload();
+      }
+    } catch (error) {
+      toast.error("Invalid Email");
+      console.log(error);
+    }
+  };
   // login
   const login = async () => {
     try {
-      const { data } = await axios.post(`${userApi}/userLogin`, state2);
-      console.log(data);
+      const { data } = await axios.post(`${userApi}/userLogin`, state3);
+      // console.log(data.userDetails);
+      Cookies.set("user",JSON.stringify(data.userDetails))
       if (data.success) {
         setopen(false);
-        setpageRefresh(!pageRefresh);
+        window.location.reload();
         toast.success("Logged in successfully");
       } else if (data.invalidUser) {
         toast.error("Invalid information provided");
@@ -36,37 +73,7 @@ const DialogForLoginAndSignup = ({ open, setopen, openas }) => {
       toast.error("Invalid information/server is down!");
     }
   };
-  console.log(state2);
-  // signup
-  const addUpUser = async () => {
-    if (state2.username === undefined) {
-      toast.error(`Username is required`);
-    } else if (state2.email === undefined) {
-      toast.error(`Email is required`);
-    } else if (state2.password === undefined) {
-      toast.error(`Password is required`);
-    }
-    try {
-      const { data } = await axios.post(`${userApi}/signupUser`, {
-        username: state2.username,
-        email: state2.email,
-        password: state2.password,
-      });
-      if (data.userExists) {
-        toast.error(`${data.userExists}`);
-      }
-
-      if (data.success) {
-        setopen(false);
-        setpageRefresh(!pageRefresh);
-        toast.success("Account created successfully");
-      }
-    } catch (error) {
-      toast.error("Invalid Email");
-      console.log(error);
-    }
-  };
-
+   
   return (
     <div>
       <Toaster />
@@ -83,7 +90,7 @@ const DialogForLoginAndSignup = ({ open, setopen, openas }) => {
               <Container>
                 <OutlinedInput
                   onChange={(e) =>
-                    setstate2({ ...state2, username: e.target.value })
+                    setstate3({ ...state3, username: e.target.value })
                   }
                   placeholder="Username"
                   fullWidth
@@ -96,7 +103,7 @@ const DialogForLoginAndSignup = ({ open, setopen, openas }) => {
             <Container>
               <OutlinedInput
                 onChange={(e) =>
-                  setstate2({ ...state2, email: e.target.value })
+                  setstate3({ ...state3, email: e.target.value })
                 }
                 placeholder="Email address"
                 fullWidth
@@ -108,7 +115,7 @@ const DialogForLoginAndSignup = ({ open, setopen, openas }) => {
               <OutlinedInput
                 type="password"
                 onChange={(e) =>
-                  setstate2({ ...state2, password: e.target.value })
+                  setstate3({ ...state3, password: e.target.value })
                 }
                 placeholder="Password"
                 fullWidth
@@ -118,9 +125,29 @@ const DialogForLoginAndSignup = ({ open, setopen, openas }) => {
         </DialogContent>
         <DialogActions>
           {openas === "signup" ? (
-            <Button onClick={addUpUser} variant="outlined">
-              Signup
-            </Button>
+            <div>
+              <Box my={1}>
+                <FormControl>
+                  <FormLabel>Select Role</FormLabel>
+                  <RadioGroup row value={value} onChange={handleRadio}>
+                    <FormControlLabel
+                      label={<span style={{ fontSize: 14 }}>Trainer</span>}
+                      value="Trainer"
+                      control={<Radio size="small" />}
+                    />
+                    <FormControlLabel
+                      label={<span style={{ fontSize: 14 }}>Learner</span>}
+                      value="Learner"
+                      control={<Radio size="small" />}
+                    />
+                  </RadioGroup>
+                </FormControl>
+              </Box>
+
+              <Button onClick={SignupLearnerOrTrainer} variant="outlined">
+                Signup
+              </Button>
+            </div>
           ) : openas === "login" ? (
             <Button onClick={login} variant="outlined">
               Login

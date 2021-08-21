@@ -12,7 +12,9 @@
     "axios": "^0.21.1",
     "google-map-react": "^2.1.10",
     "js-cookie": "^3.0.0",
+    "qrcode.react": "^1.0.1",
     "react": "^17.0.2",
+    "react-datetime-picker": "^3.4.0",
     "react-dom": "^17.0.2",
     "react-filterable": "^0.0.3",
     "react-google-maps": "^9.4.5",
@@ -50,5 +52,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/qrcode.react": "^1.0.2"
   }
 }

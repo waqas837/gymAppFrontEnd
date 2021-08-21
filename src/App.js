@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./App.css";
 import { ThemeProvider, createMuiTheme } from "@material-ui/core";
 import { BrowserRouter as Router, Route } from "react-router-dom";
@@ -8,7 +8,11 @@ import UserList from "./components/AdminDashboard/UserList";
 import CoursesHandle from "./components/AdminDashboard/CourseHandle";
 import LoginAdmin from "./components/AdminDashboard/LoginAdmin";
 import Navbar from "./components/Home/LoginAndSignup/Navbar";
- const font = "Open Sans";
+import Qr from "./Qr";
+import TrainerDashboard from "./components/Home/TrainerDashboard/TrainerDashboard";
+import LeanerDashboard from "./components/Home/LearnerDashboard/LeanerDashboard";
+const font = "Open Sans";
+
 const theme = createMuiTheme({
   typography: {
     fontFamily: font,
@@ -23,7 +27,15 @@ function App() {
       <ThemeProvider theme={theme}>
         <Router>
           <Route exact path="/">
-           <Navbar/>
+            <Navbar />
+            {Cookies.get("Trainer") ? (
+              <TrainerDashboard />
+            ) : Cookies.get("Learner") ? (
+              <LeanerDashboard />
+            ) : null}
+          </Route>
+          <Route exact path="/qr">
+            <Qr />
           </Route>
           {/* admin login */}
           <Route exact path="/admin">

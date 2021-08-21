@@ -68,7 +68,7 @@ const UserList = () => {
     setvalue(e.target.value);
     setstate3({ role: e.target.value });
   };
-  // add user by the admin it is not admin signup self
+  // add user by the admin
   const addUpUser = async () => {
     if (state2.username === undefined) {
       toast.error(`Username is required`);
@@ -79,12 +79,16 @@ const UserList = () => {
     }
     try {
       setloading(true);
-      const { data } = await axios.post(`${userApi}/signupAdmin`, {
-        username: state2.username,
-        email: state2.email,
-        password: state2.password,
-        role: state3.role,
-      },{headers});
+      const { data } = await axios.post(
+        `${userApi}/signupAdmin`,
+        {
+          username: state2.username,
+          email: state2.email,
+          password: state2.password,
+          role: state3.role,
+        },
+        { headers } 
+      );
       if (data.userExists) {
         toast.error(`${data.userExists}`);
       }
@@ -105,7 +109,8 @@ const UserList = () => {
     try {
       const { data } = await axios.patch(
         `${userApi}/updateUser/${userid}`,
-        state,{headers}
+        state,
+        { headers }
       );
       if (data) {
         setopen(false);
@@ -167,14 +172,15 @@ const UserList = () => {
     // call here api and just delete the data
     try {
       const { data } = await axios.delete(
-        `${userApi}/deleteSingleUser/${userid}`,{headers}
+        `${userApi}/deleteSingleUser/${userid}`,
+        { headers }
       );
       console.log(data);
       // open record deleted dialog that data was deleted
       if (data.success) {
         setopentwo(true);
         setpageRefresh(!pageRefresh);
-        window.location.reload();
+        setstate2("");
       }
     } catch (error) {
       setloading(false);

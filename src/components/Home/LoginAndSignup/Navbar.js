@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
+import axios from "axios";
+import { userApi } from "../../../Api";
 import {
   Typography,
   AppBar,
@@ -26,24 +28,27 @@ const useStyles = makeStyles((theme) => ({
 const Navbar = () => {
   const classes = useStyles();
   const [open, setopen] = useState(null);
-  const [refresh, setrefresh] = useState(false);
   const [openas, setopenas] = useState("NoSelection");
-  useEffect(() => {}, [refresh]);
+
   //logout
   const logout = () => {
-    Cookies.remove("user");
-    setrefresh(!refresh);
+    if (Cookies.get("Learner")) {
+      Cookies.remove("Learner");
+    } else if (Cookies.get("Trainer")) {
+      Cookies.remove("Trainer");
+    }
+    window.location.reload();
   };
   // login
-  const login=()=>{
+  const login = () => {
     setopen(true);
-    setopenas("login")
-  }
+    setopenas("login");
+  };
   // signup
-  const signup=()=>{
+  const signup = () => {
     setopen(true);
-    setopenas("signup")
-  }
+    setopenas("signup");
+  };
   return (
     <div>
       <Toaster />
@@ -61,32 +66,24 @@ const Navbar = () => {
           <Typography variant="h6" className={classes.title}>
             GYMapp
           </Typography>
-          {Cookies.get("user") ? (
+          {Cookies.get("Learner") || Cookies.get("Trainer") ? (
             <Button variant="outlined" color="inherit" onClick={logout}>
               Logout
             </Button>
           ) : (
             <React.Fragment>
-              <Button
-                color="inherit"
-                variant="outlined"
-                onClick={signup}
-              >
+              <Button color="inherit" variant="outlined" onClick={signup}>
                 Signup
               </Button>
               &nbsp;
-              <Button
-                color="inherit"
-                variant="outlined"
-                onClick={login}
-              >
+              <Button color="inherit" variant="outlined" onClick={login}>
                 Login
               </Button>
             </React.Fragment>
           )}
         </Toolbar>
       </AppBar>
-      <DialogForLoginAndSignup open={open} setopen={setopen} openas={openas}/>
+      <DialogForLoginAndSignup open={open} setopen={setopen} openas={openas} />
     </div>
   );
 };
